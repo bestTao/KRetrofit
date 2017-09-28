@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 private val DEFAULT_TIMEOUT = 5L
 
-private val BASE_URL = "https://app.aikalife.com:9091/app/v1/"
+private val BASE_URL = "http://sj.apidata.cn/"
 
 private fun buildOkHttpClient(): OkHttpClient {
     val builder = OkHttpClient.Builder()
@@ -54,10 +54,10 @@ var service: HttpService = retrofit.create(HttpService::class.java)
 
 
 private fun <T> HttpResult<T>.parse(): T {
-    if (this.retCode != "0000") {
-        throw object : HttpException(this.retCode, this.retMsg) {}
+    if (this.status != 1) {
+        throw object : HttpException(this.status, this.message) {}
     } else {
-        return this.retContent
+        return this.data
     }
 }
 
@@ -74,8 +74,8 @@ class RequestWrapper<T, R : Context> {
     }
 }
 
-fun <T, R : Context> R.request(call: (service: HttpService) -> Call<HttpResult<T>>,
-                               task: RequestWrapper<T, R>.() -> Unit): Call<HttpResult<T>> {
+fun <T, R : Context> R.httpRequest(call: (service: HttpService) -> Call<HttpResult<T>>,
+                                   task: RequestWrapper<T, R>.() -> Unit): Call<HttpResult<T>> {
     val c = call(service)
     val wrap = RequestWrapper<T, R>()
     wrap.task()
@@ -122,7 +122,6 @@ object BackgroundExecutor {
             Executors.newScheduledThreadPool(2 * Runtime.getRuntime().availableProcessors())
 
     fun <R> submit(task: () -> R): Future<R> = executor.submit(task)
-
 }
 
 private object ContextHelper {

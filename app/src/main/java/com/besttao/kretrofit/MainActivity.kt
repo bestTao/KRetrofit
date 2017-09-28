@@ -11,9 +11,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         tvRequest.setOnClickListener {
-            request({ it.fetchBeijingTime() }, {
-                success { (BeijingTime), activity ->
-                    toast(BeijingTime)
+            httpRequest(call = { service.fetchMobileLocale(mobileNumber = "13888888888") }, task = {
+                success { mobile, activity ->
+                    activity.toast(mobile.toString())
                 }
             })
         }
